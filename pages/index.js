@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Box from '../src/components/Box';
 import MainGrid from '../src/components/MainGrid';
@@ -27,6 +27,29 @@ const ProfileSideBar = (props) => {
   ) 
 };
 
+const ProfileRelationsBox = (props) => {
+  return(
+    <ProfileRelationsBoxWrapper>
+      <h2 className="smallTitle" >{props.title} ({props.items.length})</h2>
+      <ul>
+        {props.items.map((item, index) => {
+          if (index <= 5) {
+            return(
+              <li key={item}>
+                <a href={`/users/${item.login}`}>                  
+                  <img src={`https://github.com/${item.login}.png`} />
+                  <span>{item.login}</span>            
+                </a> 
+              </li>                                 
+            )
+          }              
+        })
+        }
+      </ul>
+    </ProfileRelationsBoxWrapper>
+  )
+};
+
 export default function Home() {
   
 
@@ -37,6 +60,25 @@ export default function Home() {
     title: 'Aceite essa manga',
     image: 'https://i.pinimg.com/originals/0c/d4/8f/0cd48f58e29251826eb366b39452cfa7.jpg'
   }]);
+
+  // 0 - criar fetch github
+  
+  const [followers, setFollowers] = useState([]);
+
+  useEffect(() => {
+    fetch('https://api.github.com/users/barbaraaliverti/followers')
+    .then((res) => {
+      
+      if(res.ok) {
+        return res.json();
+      }
+      throw new Error('Aconteceu um erro :(' + res.status);
+    
+    })
+    .then((res) => setFollowers(res))
+    .catch((err) => console.error(err));
+  }, []); //colocando só [], executa uma vez; ou pode colocar a variável pra executar toda vez q for alterada
+  // 1- box com map fetch dos followers do github
 
   return (
     <>
@@ -106,6 +148,8 @@ export default function Home() {
             }
           </ul>
         </ProfileRelationsBoxWrapper>
+
+        <ProfileRelationsBox title="Seguidores" items={followers} />
         
         <ProfileRelationsBoxWrapper>
           <h2 className="smallTitle">Comunidades ({communities.length})</h2>
