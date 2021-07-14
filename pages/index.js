@@ -40,7 +40,7 @@ export default function Home() {
 
   return (
     <>
-    <AlurakutMenu />
+    <AlurakutMenu githubUser={githubUser} />
     <MainGrid>
       <div className="profileArea" style={{ gridArea: 'profileArea'}}>
         <ProfileSideBar githubUser={githubUser} />
@@ -91,33 +91,36 @@ export default function Home() {
         <ProfileRelationsBoxWrapper>
           <h2 className="smallTitle" >Meus amigos ({friends.length})</h2>
           <ul>
-            {friends.map((eachFriend) => {
-              return(
-                <li key={eachFriend}>
-                  <a href={`/users/${eachFriend}`}>                  
-                    <img src={`https://github.com/${eachFriend}.png`} />
-                    <span>{eachFriend}</span>            
-                  </a> 
-                </li>
-                               
-              )
+            {friends.map((eachFriend, index) => {
+              if (index <= 5) {
+                return(
+                  <li key={eachFriend}>
+                    <a href={`/users/${eachFriend}`}>                  
+                      <img src={`https://github.com/${eachFriend}.png`} />
+                      <span>{eachFriend}</span>            
+                    </a> 
+                  </li>                                 
+                )
+              }              
               })
             }
           </ul>
         </ProfileRelationsBoxWrapper>
         
         <ProfileRelationsBoxWrapper>
-          <h2 className="smallTitle">Comunidades</h2>
+          <h2 className="smallTitle">Comunidades ({communities.length})</h2>
           <ul>
-            {communities.map(( eachComm ) => {
-              return(
-                <li key={eachComm.id}>
-                  <a href={`/users/${eachComm.title}`}>                  
-                    <img src={eachComm.image} />
-                    <span>{eachComm.title}</span>            
-                  </a> 
-                </li>                               
-              )
+            {communities.map(( eachComm, index ) => {
+              if (index <= 5) {
+                return(
+                  <li key={eachComm.id}>
+                    <a href={`/users/${eachComm.title}`}>                  
+                      <img src={eachComm.image} />
+                      <span>{eachComm.title}</span>            
+                    </a> 
+                  </li>                               
+                )
+              }              
             })}
           </ul>
         </ProfileRelationsBoxWrapper>
