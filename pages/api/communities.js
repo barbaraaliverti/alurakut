@@ -16,7 +16,6 @@ export default async function receiveCommunitiesRequest(request, response) {
         })
 
         response.json({
-            dados: 'algum dado',
             newCommunityAdded: newCommunityAdded,
         })
         return;

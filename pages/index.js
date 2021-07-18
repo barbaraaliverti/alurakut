@@ -91,6 +91,7 @@ export default function Home() {
             title
             creatorSlug
             imageUrl
+            externalLink
           } 
         }`
       })
@@ -126,11 +127,11 @@ export default function Home() {
           <form onSubmit={(e) => {
             e.preventDefault();
             const communityData = new FormData(e.target);
-            console.log(communityData.get('title'), communityData.get('image'));
 
             const newCommunity = {
               title: communityData.get('title'),
-              imageUrl: communityData.get('image'),
+              imageUrl: communityData.get('imageUrl'),
+              externalLink: communityData.get('externalLink'),
               creatorSlug: githubUser,
             }
 
@@ -146,9 +147,7 @@ export default function Home() {
               console.log(data.newCommunityAdded);
               const communityAdded = data.newCommunityAdded;
               setCommunities([...communities, communityAdded]);
-            })
-
-            
+            })            
           }                    
             
           }>
@@ -160,8 +159,15 @@ export default function Home() {
             />
 
             <input 
+              placeholder="Insira uma URL para sua comunidade" 
+              name="externalLink" 
+              aria-label="Insira uma URL para a sua comunidade"
+              type="text"
+            />
+
+            <input 
               placeholder="Insira uma URL para a capa" 
-              name="image" 
+              name="imageUrl" 
               aria-label="Insira uma URL para a capa"
               type="text"
             />
@@ -200,7 +206,7 @@ export default function Home() {
               if (index <= 5) {
                 return(
                   <li key={item.id}>
-                    <a href={`/communities/${item.id}`}>                  
+                    <a href={`${item.externalLink}`} target='_blank'>                  
                       <img src={item.imageUrl} />
                       <span>{item.title}</span>            
                     </a> 
