@@ -55,17 +55,14 @@ export default function Home() {
 
   const githubUser = 'barbaraaliverti';
   const friends = ['gugacavalieri', 'barbaraaliverti'];
-  const [communities, setCommunities] = useState([{
-    id: new Date().toISOString(),
-    title: 'Aceite essa manga',
-    image: 'https://i.pinimg.com/originals/0c/d4/8f/0cd48f58e29251826eb366b39452cfa7.jpg'
-  }]);
+  const [communities, setCommunities] = useState([]);
 
   // 0 - criar fetch github
   
   const [followers, setFollowers] = useState([]);
 
   useEffect(() => {
+    //método GET
     fetch('https://api.github.com/users/barbaraaliverti/followers')
     .then((res) => {
       
@@ -77,6 +74,36 @@ export default function Home() {
     })
     .then((res) => setFollowers(res))
     .catch((err) => console.error(err));
+
+    //API GraphQL
+    fetch('https://graphql.datocms.com/', {
+      method: 'POST',
+      //https://www.datocms.com/docs/content-delivery-api/your-first-request
+      headers: {
+        'Authorization': 'b98ccc255f8cd0a164bb25b32e8730',
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        "query" : `query {
+          allCommunities {
+            id
+            title
+            creatorSlug
+            imageUrl
+          } 
+        }`
+      })
+    })
+    .then((res) => res.json())
+    .then((resJSON) => {
+      const communitiesFetchedFromDato = resJSON.data.allCommunities;
+      console.log(communitiesFetchedFromDato);
+      setCommunities(communitiesFetchedFromDato);
+    })
+
+
+
   }, []); //colocando só [], executa uma vez; ou pode colocar a variável pra executar toda vez q for alterada
   // 1- box com map fetch dos followers do github
 
@@ -103,10 +130,25 @@ export default function Home() {
 
             const newCommunity = {
               title: communityData.get('title'),
-              image: communityData.get('image')
+              imageUrl: communityData.get('image'),
+              creatorSlug: githubUser,
             }
 
-            setCommunities([...communities, newCommunity])
+            fetch('/api/communities', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(newCommunity)
+            })
+            .then(async (response) => {
+              const data = await response.json();
+              console.log(data.newCommunityAdded);
+              const communityAdded = data.newCommunityAdded;
+              setCommunities([...communities, communityAdded]);
+            })
+
+            
           }                    
             
           }>
@@ -154,13 +196,13 @@ export default function Home() {
         <ProfileRelationsBoxWrapper>
           <h2 className="smallTitle">Comunidades ({communities.length})</h2>
           <ul>
-            {communities.map(( eachComm, index ) => {
+            {communities.map(( item, index ) => {
               if (index <= 5) {
                 return(
-                  <li key={eachComm.id}>
-                    <a href={`/users/${eachComm.title}`}>                  
-                      <img src={eachComm.image} />
-                      <span>{eachComm.title}</span>            
+                  <li key={item.id}>
+                    <a href={`/communities/${item.id}`}>                  
+                      <img src={item.imageUrl} />
+                      <span>{item.title}</span>            
                     </a> 
                   </li>                               
                 )
