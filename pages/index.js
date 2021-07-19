@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import nookies from 'nookies';
+import jwt from 'jsonwebtoken';
 import Box from '../src/components/Box';
 import MainGrid from '../src/components/MainGrid';
 import { ProfileRelationsBoxWrapper } from '../src/components/ProfileRelations';
@@ -50,10 +51,10 @@ const ProfileRelationsBox = (props) => {
   )
 };
 
-export default function Home() {
+export default function Home(props) {
   
 
-  const githubUser = 'barbaraaliverti';
+  const githubUser = props.githubUser;
   const friends = ['gugacavalieri', 'barbaraaliverti'];
   const [communities, setCommunities] = useState([]);
 
@@ -221,4 +222,35 @@ export default function Home() {
     </MainGrid>
     </>
     )
-};
+}
+
+//essa função vai verificar se há um cookie e decidir se a página carrega ou vai ser direcionada para outra 
+export async function getServerSideProps(context) {
+  const cookies = nookies.get(context);
+  const token = cookies.USER_TOKEN;
+
+  const { isAuthenticated } = await fetch('https://alurakut.vercel.app/api/auth', {
+    headers: {
+      Authorization: token
+    }
+  })
+  .then((res) => res.json())
+
+  if(!isAuthenticated) {
+    return{
+      redirect: {
+        destination: '/login',
+        permanent: false,
+      }
+    }
+  }
+
+  
+  const { githubUser } = jwt.decode(token);
+
+  return({
+    props: {
+      githubUser: githubUser
+    } //will be passed to the page component as props
+  })
+}
